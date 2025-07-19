@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import { useRouter } from "next/navigation"
 import { motion, useScroll, useTransform, useSpring } from "framer-motion"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -127,6 +128,18 @@ export default function CoolLandingPage() {
   const { scrollYProgress } = useScroll()
   const yRange = useTransform(scrollYProgress, [0, 1], [0, -200])
   const pathLength = useSpring(scrollYProgress, { stiffness: 400, damping: 40 })
+
+  const router = useRouter()
+  const [isbnInput, setIsbnInput] = useState("")
+
+  const handleBloom = () => {
+    const clean = isbnInput.replace(/[^0-9X]/gi, "")
+    if (clean.length === 10 || clean.length === 13) {
+      router.push(`/book/${clean}`)
+    } else {
+      alert("Please enter a valid 10- or 13-digit ISBN")
+    }
+  }
 
   return (
     <div className="relative min-h-screen bg-gradient-to-br from-slate-800 via-slate-700 to-slate-900 overflow-hidden">
@@ -278,6 +291,8 @@ export default function CoolLandingPage() {
                   <div className="absolute -inset-1 bg-gradient-to-r from-orange-500 via-red-500 to-green-500 rounded-2xl blur opacity-25 group-hover:opacity-75 transition duration-1000 group-hover:duration-200"></div>
                   <div className="relative flex gap-3 p-3 bg-slate-800/60 backdrop-blur-xl rounded-2xl border border-slate-600/30">
                     <Input
+                      value={isbnInput}
+                      onChange={(e) => setIsbnInput(e.target.value)}
                       type="text"
                       placeholder="Plant an ISBN and watch knowledge bloom..."
                       className="flex-1 bg-transparent border-none text-slate-100 placeholder:text-slate-400 focus:ring-0 text-lg"
@@ -286,6 +301,7 @@ export default function CoolLandingPage() {
                       <Button
                         size="lg"
                         className="bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 border-none shadow-lg shadow-orange-500/25"
+                        onClick={handleBloom}
                       >
                         <Search className="w-5 h-5 mr-2" />
                         Bloom
