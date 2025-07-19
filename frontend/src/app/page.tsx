@@ -835,7 +835,7 @@ export default function CoolLandingPage() {
               <span className="font-semibold">Assignment for Full Stack Developer Role</span>
               <span className="hidden md:inline mx-2">|</span>
               <a
-                href="https://github.com/prashidharaw/ISBN-Book-Search"
+                href="https://github.com/Prashidha0O1/isbn-library"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-orange-300 hover:underline"
