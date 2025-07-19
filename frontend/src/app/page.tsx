@@ -825,6 +825,29 @@ export default function CoolLandingPage() {
           </div>
 
           <motion.div
+            className="mt-8 mb-4 flex flex-col md:flex-row md:items-center md:justify-between gap-2"
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            transition={{ delay: 0.3, duration: 0.8 }}
+            viewport={{ once: true }}
+          >
+            <div className="text-slate-300 text-sm flex flex-col md:flex-row md:items-center gap-2">
+              <span className="font-semibold">Assignment for Full Stack Developer Role</span>
+              <span className="hidden md:inline mx-2">|</span>
+              <a
+                href="https://github.com/prashidharaw/ISBN-Book-Search"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-orange-300 hover:underline"
+              >
+                View Repo
+              </a>
+              <span className="hidden md:inline mx-2">|</span>
+              <span>Built by <span className="font-semibold text-orange-200">Prashidha Rawal</span></span>
+            </div>
+          </motion.div>
+
+          <motion.div
             className="border-t border-slate-600/30 mt-12 pt-8 flex flex-col md:flex-row justify-between items-center"
             initial={{ opacity: 0 }}
             whileInView={{ opacity: 1 }}
