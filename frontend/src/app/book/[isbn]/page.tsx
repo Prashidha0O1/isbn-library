@@ -30,17 +30,29 @@ export default function BookDetailPage() {
   useEffect(() => {
     if (!isbn) return
     setLoading(true)
+    setError("")
     fetch(
       process.env.NODE_ENV === "development"
         ? `http://localhost:8000/api/books/${isbn}/`
         : `https://isbn-backend.fly.dev/api/books/${isbn}/`
     )
-      .then((r) => r.json())
-      .then((data) => {
-        if (data.success) setBook(data.data)
-        else setError(data.message)
+      .then((r) => {
+        if (!r.ok) {
+          throw new Error(`HTTP error! Status: ${r.status}`)
+        }
+        return r.json()
       })
-      .catch(() => setError("Network error"))
+      .then((data) => {
+        if (data.success) {
+          setBook(data.data)
+        } else {
+          setError(data.message || "Book not found")
+        }
+      })
+      .catch((err) => {
+        console.error("Fetch error:", err)
+        setError(`Failed to fetch book data: ${err.message}`)
+      })
       .finally(() => setLoading(false))
   }, [isbn])
 
@@ -58,7 +70,7 @@ export default function BookDetailPage() {
   if (error || !book)
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-slate-900 text-slate-300">
-        <p className="mb-4">{error || "Book not found"}</p>
+        <p className="mb-4 text-lg">{error || "Book not found"}</p>
         <Link href="/">
           <button className="bg-orange-500 hover:bg-orange-600 px-4 py-2 rounded text-white">
             Back to Garden
@@ -74,7 +86,6 @@ export default function BookDetailPage() {
       className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 p-4 md:p-8"
     >
       <div className="max-w-5xl mx-auto">
-        {/* back arrow */}
         <Link href="/">
           <motion.button
             whileHover={{ scale: 1.1 }}
@@ -85,7 +96,6 @@ export default function BookDetailPage() {
         </Link>
 
         <div className="grid md:grid-cols-3 gap-8">
-          {/* cover */}
           <motion.div
             initial={{ scale: 0.9, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
@@ -93,7 +103,7 @@ export default function BookDetailPage() {
             className="md:col-span-1 flex justify-center"
           >
             <Image
-              src={book.thumbnail || "/placeholder-cover.png"}
+              src={book.thumbnail || "https://via.placeholder.com/300x450?text=No+Cover"} // fallback to remote placeholder if missing
               alt={book.title}
               width={300}
               height={450}
@@ -102,7 +112,6 @@ export default function BookDetailPage() {
             />
           </motion.div>
 
-          {/* meta */}
           <div className="md:col-span-2 space-y-6">
             <motion.h1
               initial={{ y: -20, opacity: 0 }}
@@ -110,22 +119,22 @@ export default function BookDetailPage() {
               transition={{ delay: 0.3 }}
               className="text-3xl md:text-5xl font-bold bg-gradient-to-r from-slate-100 to-orange-200 bg-clip-text text-transparent"
             >
-              {book.title}
+              {book.title || "Untitled"}
             </motion.h1>
             {book.subtitle && (
               <p className="text-lg text-slate-400 italic">{book.subtitle}</p>
             )}
 
             <div className="space-y-3 text-slate-300">
-              <InfoRow icon={<Users />} label="Authors" value={book.authors.join(", ")} />
-              <InfoRow icon={<Building />} label="Publisher" value={book.publisher} />
-              <InfoRow icon={<Calendar />} label="Published" value={book.published_date} />
-              <InfoRow icon={<FileText />} label="Pages" value={book.page_count?.toString()} />
-              {book.average_rating && (
+              <InfoRow icon={<Users />} label="Authors" value={Array.isArray(book.authors) ? book.authors.join(", ") : "Unknown"} />
+              <InfoRow icon={<Building />} label="Publisher" value={book.publisher || "Unknown"} />
+              <InfoRow icon={<Calendar />} label="Published" value={book.published_date || "Unknown"} />
+              <InfoRow icon={<FileText />} label="Pages" value={book.page_count != null ? book.page_count.toString() : "N/A"} />
+              {book.average_rating != null && (
                 <InfoRow
                   icon={<Star />}
                   label="Rating"
-                  value={`⭐ ${book.average_rating} (${book.ratings_count} ratings)`}
+                  value={`⭐ ${book.average_rating} (${book.ratings_count != null ? book.ratings_count : 0} ratings)`}
                 />
               )}
             </div>
@@ -148,7 +157,6 @@ export default function BookDetailPage() {
   )
 }
 
-/* helper */
 function InfoRow({ icon, label, value }: { icon: React.ReactNode; label: string; value?: string }) {
   if (!value) return null
   return (

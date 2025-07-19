@@ -41,7 +41,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-ROOT_URLCONF = 'isbn_backend.urls'
+ROOT_URLCONF = 'book_search.urls'
 
 TEMPLATES = [
     {
@@ -59,7 +59,7 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'isbn_backend.wsgi.application'
+WSGI_APPLICATION = 'book_search.wsgi.application'
 
 # Database
 DATABASES = {

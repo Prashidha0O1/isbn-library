@@ -5,8 +5,10 @@ from bs4 import BeautifulSoup
 from django.core.cache import cache
 from django.conf import settings
 from .models import Book, SearchHistory
-import logging
+import logging  
+from decouple import config
 
+GOOGLE_BOOKS_API_KEY = config('GOOGLE_BOOKS_API_KEY')
 logger = logging.getLogger(__name__)
 
 class ISBNService:
@@ -21,7 +23,6 @@ class ISBNService:
     
     def normalize_isbn(self, isbn):
         """Clean and normalize ISBN"""
-        # Remove all non-digit and non-X characters
         isbn = re.sub(r'[^0-9X]', '', isbn.upper())
         return isbn
     
@@ -140,8 +141,13 @@ class ISBNService:
         return None, "Book not found in any source"
     
     def _fetch_from_google_books(self, isbn):
-        """Fetch book data from Google Books API"""
-        url = f"https://www.googleapis.com/books/v1/volumes?q=isbn:{isbn}"
+        """Fetch book data from Google Books API using API key"""
+        api_key = getattr(settings, 'GOOGLE_BOOKS_API_KEY', None)
+        if not api_key:
+            logger.error("Google Books API key not configured")
+            return None
+        
+        url = f"https://www.googleapis.com/books/v1/volumes?q=isbn:{isbn}&key={api_key}"
         
         try:
             response = requests.get(url, timeout=10)

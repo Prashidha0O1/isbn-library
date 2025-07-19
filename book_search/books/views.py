@@ -1,4 +1,3 @@
-# books/views.py
 import time
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny
@@ -8,6 +7,7 @@ from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
 from django.views import View
+from django.db import models
 import json
 
 from .models import Book, SearchHistory
@@ -106,19 +106,21 @@ def get_book_by_isbn(request, isbn):
     GET /api/books/{isbn}/
     """
     normalized_isbn = isbn_service.normalize_isbn(isbn)
-    
     try:
         book = Book.objects.get(isbn=normalized_isbn)
-        serializer = BookSerializer(book)
-        return Response({
-            'success': True,
-            'data': serializer.data
-        })
     except Book.DoesNotExist:
-        return Response({
-            'success': False,
-            'message': 'Book not found in database'
-        }, status=status.HTTP_404_NOT_FOUND)
+        # Try to fetch from external sources if not found in DB
+        book, error_message = isbn_service.search_book(normalized_isbn)
+        if not book:
+            return Response({
+                'success': False,
+                'message': error_message or 'Book not found'
+            }, status=status.HTTP_404_NOT_FOUND)
+    serializer = BookSerializer(book)
+    return Response({
+        'success': True,
+        'data': serializer.data
+    })
 
 @api_view(['GET'])
 @permission_classes([AllowAny])
@@ -217,6 +219,3 @@ def not_found(request):
             'GET /api/health/'
         ]
     }, status=status.HTTP_404_NOT_FOUND)
-
-# Django model imports for aggregation
-from django.db import models
