@@ -6,3 +6,4 @@ requests
 beautifulsoup4
 django-cors-headers
 gunicorn
+whitenoise==6.7.0
