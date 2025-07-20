@@ -15,7 +15,7 @@ SECRET_KEY = config('SECRET_KEY', default='your-secret-key-here')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = config('DEBUG', default=True, cast=bool)
 
-ALLOWED_HOSTS = ['localhost', '127.0.0.1', '0.0.0.0', 'isbn-library.onrender.com']
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', '0.0.0.0', 'https://isbn-library.onrender.com']
 
 # Application definition
 INSTALLED_APPS = [
@@ -118,6 +118,7 @@ CORS_ALLOWED_ORIGINS = [
     "http://127.0.0.1:3000",
     "http://localhost:3001",
     "http://127.0.0.1:3001",
+    "https://isbn-library.vercel.app/",
 ]
 
 CORS_ALLOW_CREDENTIALS = True
