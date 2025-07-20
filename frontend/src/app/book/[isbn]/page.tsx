@@ -1,60 +1,52 @@
-"use client"
+"use client";
 
-import { useEffect, useState } from "react"
-import { useParams } from "next/navigation"
-import { motion } from "framer-motion"
-import Image from "next/image"
-import { ArrowLeft, BookOpen, Users, Building, Calendar, FileText, Star } from "lucide-react"
-import Link from "next/link"
+import { useEffect, useState } from "react";
+import { useParams, useRouter } from "next/navigation";
+import { motion } from "framer-motion";
+import Image from "next/image";
+import { ArrowLeft, Users, Building, Calendar, FileText, Star } from "lucide-react";
+import Link from "next/link";
 
 interface Book {
-  isbn: string
-  title: string
-  subtitle?: string
-  authors: string[]
-  publisher?: string
-  published_date?: string
-  description?: string
-  page_count?: number
-  thumbnail?: string
-  average_rating?: number
-  ratings_count?: number
+  isbn: string;
+  title: string;
+  subtitle?: string;
+  authors: string[];
+  publisher?: string;
+  published_date?: string;
+  description?: string;
+  page_count?: number;
+  thumbnail?: string;
+  average_rating?: number;
+  ratings_count?: number;
 }
 
 export default function BookDetailPage() {
-  const { isbn } = useParams() as { isbn: string }
-  const [book, setBook] = useState<Book | null>(null)
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState("")
+  const { isbn } = useParams() as { isbn: string };
+  const router = useRouter();
+  const [book, setBook] = useState<Book | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
   useEffect(() => {
-    if (!isbn) return
-    setLoading(true)
-    setError("")
-    fetch(
-      process.env.NODE_ENV === "development"
-        ? `http://localhost:8000/api/books/${isbn}/`
-        : `https://isbn-backend.fly.dev/api/books/${isbn}/`
-    )
+    if (!isbn) return;
+    setLoading(true);
+    setError("");
+    fetch(`https://isbn-library.onrender.com/api/books/${isbn}/`)
       .then((r) => {
-        if (!r.ok) {
-          throw new Error(`HTTP error! Status: ${r.status}`)
-        }
-        return r.json()
+        if (!r.ok) throw new Error(`HTTP error! Status: ${r.status}`);
+        return r.json();
       })
       .then((data) => {
-        if (data.success) {
-          setBook(data.data)
-        } else {
-          setError(data.message || "Book not found")
-        }
+        if (data.success) setBook(data.data);
+        else setError(data.message || "Book not found");
       })
       .catch((err) => {
-        console.error("Fetch error:", err)
-        setError(`Failed to fetch book data: ${err.message}`)
+        console.error("Fetch error:", err);
+        setError(`Failed to fetch book data: ${err.message}`);
       })
-      .finally(() => setLoading(false))
-  }, [isbn])
+      .finally(() => setLoading(false));
+  }, [isbn]);
 
   if (loading)
     return (
@@ -65,7 +57,7 @@ export default function BookDetailPage() {
           className="w-12 h-12 border-4 border-orange-400 border-t-transparent rounded-full"
         />
       </div>
-    )
+    );
 
   if (error || !book)
     return (
@@ -77,7 +69,7 @@ export default function BookDetailPage() {
           </button>
         </Link>
       </div>
-    )
+    );
 
   return (
     <motion.div
@@ -103,7 +95,7 @@ export default function BookDetailPage() {
             className="md:col-span-1 flex justify-center"
           >
             <Image
-              src={book.thumbnail || "https://via.placeholder.com/300x450?text=No+Cover"} // fallback to remote placeholder if missing
+              src={book.thumbnail || `https://via.placeholder.com/300x450?text=${encodeURIComponent(book.title)}`}
               alt={book.title}
               width={300}
               height={450}
@@ -134,7 +126,7 @@ export default function BookDetailPage() {
                 <InfoRow
                   icon={<Star />}
                   label="Rating"
-                  value={`⭐ ${book.average_rating} (${book.ratings_count != null ? book.ratings_count : 0} ratings)`}
+                  value={`⭐ ${book.average_rating} (${book.ratings_count ?? 0} ratings)`}
                 />
               )}
             </div>
@@ -154,16 +146,16 @@ export default function BookDetailPage() {
         </div>
       </div>
     </motion.div>
-  )
+  );
 }
 
 function InfoRow({ icon, label, value }: { icon: React.ReactNode; label: string; value?: string }) {
-  if (!value) return null
+  if (!value) return null;
   return (
     <div className="flex items-center gap-3">
       <span className="text-orange-400">{icon}</span>
       <span className="font-medium text-slate-200">{label}:</span>
       <span className="text-slate-300">{value}</span>
     </div>
-  )
+  );
 }
